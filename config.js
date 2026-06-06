@@ -15,5 +15,5 @@
    NEVER paste the "service_role" key anywhere in these files.
    ============================================================ */
 
-window.SUPABASE_URL = "https://fyeboxttuatutolkyiox.supabase.co/rest/v1/";
+window.SUPABASE_URL = "https://fyeboxttuatutolkyiox.supabase.co/rest/v1";
 window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZWJveHR0dWF0dXRvbGt5aW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3NDQ3NTUsImV4cCI6MjA5NjMyMDc1NX0.wiW8EOLK9yrvzixd3WjPMnTUZ7HHgMF9ejsSFh2H-Jk";
