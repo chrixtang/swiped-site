@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Find my teacher — swipED</title>
+<meta name="description" content="Tell us what you're looking for and we'll match you with a world-class teacher." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4efe4; --bg-2:#efe7d6; --ink:#16261d; --ink-soft:#3a4a40;
+    --green:#1c5f43; --green-deep:#0f3326; --coral:#ff5b3a; --amber:#f2b441;
+    --cream:#fbf8f1; --line:rgba(22,38,29,.12);
+    --shadow:0 30px 60px -25px rgba(15,51,38,.45); --r:22px;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',-apple-system,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--coral);color:#fff}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+
+  /* top bar */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:26px 0}
+  .logo{font-family:var(--display);font-weight:600;font-size:1.5rem;letter-spacing:-.02em;display:flex;align-items:center;gap:2px}
+  .logo .sw{color:var(--ink)} .logo .ed{color:var(--coral)}
+  .logo .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);margin-left:3px;margin-bottom:-10px}
+  .back{font-weight:500;font-size:.95rem;color:var(--ink-soft);display:inline-flex;align-items:center;gap:7px;transition:.2s}
+  .back:hover{color:var(--ink)}
+
+  /* layout */
+  .grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:46px;align-items:start;padding:18px 0 90px}
+
+  /* intro panel */
+  .intro{position:sticky;top:30px}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--green);background:rgba(28,95,67,.1);padding:8px 16px;border-radius:100px;margin-bottom:22px}
+  .eyebrow .pulse{width:8px;height:8px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 0 rgba(255,91,58,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,91,58,.5)}70%{box-shadow:0 0 0 12px rgba(255,91,58,0)}100%{box-shadow:0 0 0 0 rgba(255,91,58,0)}}
+  .intro h1{font-family:var(--display);font-weight:500;font-size:clamp(2.1rem,4vw,3rem);line-height:1.04;letter-spacing:-.02em}
+  .intro h1 em{font-style:italic;color:var(--green)}
+  .intro p{color:var(--ink-soft);font-size:1.08rem;margin-top:18px;max-width:380px}
+  .intro .pts{list-style:none;margin-top:26px;display:flex;flex-direction:column;gap:13px}
+  .intro .pts li{display:flex;gap:11px;align-items:flex-start;font-size:.97rem;color:var(--ink-soft)}
+  .intro .pts .ck{color:var(--green);font-weight:700;flex-shrink:0}
+
+  /* form card */
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:40px 38px}
+  fieldset{border:none;margin-bottom:30px}
+  legend{font-family:var(--display);font-weight:600;font-size:1.18rem;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+  legend .step{width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;font-family:var(--body);font-size:.85rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+  .fs-note{font-size:.9rem;color:var(--ink-soft);margin:0 0 18px 36px}
+
+  .field{margin-bottom:16px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  label{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
+  label .opt{font-weight:500;color:var(--ink-soft)}
+  .hint{font-size:.8rem;color:var(--ink-soft);margin-top:5px}
+  input,select{width:100%;font-family:var(--body);font-size:1rem;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:13px 15px;transition:.2s}
+  input::placeholder{color:#a9b3ac}
+  input:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(28,95,67,.12)}
+  input.bad,select.bad{border-color:var(--coral);box-shadow:0 0 0 3px rgba(255,91,58,.12)}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%233a4a40' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:38px}
+  .err{font-size:.8rem;color:var(--coral);margin-top:5px;display:none}
+  .err.show{display:block}
+
+  /* honeypot — hidden from humans */
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+  /* account toggle */
+  .acct-toggle{display:flex;gap:13px;align-items:flex-start;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:16px 18px;cursor:pointer;transition:.2s}
+  .acct-toggle:hover{border-color:var(--green)}
+  .acct-toggle input{width:20px;height:20px;margin-top:2px;accent-color:var(--green);flex-shrink:0;cursor:pointer}
+  .acct-toggle .t{font-weight:600;font-size:.97rem}
+  .acct-toggle .d{font-size:.86rem;color:var(--ink-soft);margin-top:2px}
+  .acct-fields{margin-top:18px;display:none}
+  .acct-fields.show{display:block}
+  .uname-preview{font-family:var(--display);color:var(--green);font-weight:600}
+
+  .submit{width:100%;font-family:var(--body);font-weight:600;font-size:1.05rem;cursor:pointer;border:none;border-radius:100px;padding:16px 24px;background:var(--coral);color:#fff;transition:.25s;margin-top:6px}
+  .submit:hover{background:#ff4019;transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(255,91,58,.7)}
+  .submit:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+  .form-foot{font-size:.82rem;color:var(--ink-soft);text-align:center;margin-top:14px}
+
+  /* success overlay */
+  .done{position:fixed;inset:0;z-index:10000;background:rgba(15,51,38,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+  .done.show{display:flex}
+  .done-card{background:var(--cream);border-radius:28px;box-shadow:var(--shadow);max-width:440px;width:100%;padding:48px 40px;text-align:center;animation:pop .5s cubic-bezier(.16,1,.3,1)}
+  @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+  .done .mark{width:74px;height:74px;border-radius:50%;background:var(--green);color:#fff;font-size:2.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+  .done h2{font-family:var(--display);font-weight:600;font-size:1.9rem;margin-bottom:12px}
+  .done p{color:var(--ink-soft);font-size:1.05rem;margin-bottom:8px}
+  .done .acct-line{font-size:.92rem;background:var(--bg-2);border-radius:12px;padding:12px 16px;margin:18px 0 6px}
+  .done .btn{display:inline-block;margin-top:22px;font-weight:600;border:none;border-radius:100px;padding:13px 28px;background:var(--ink);color:var(--cream);cursor:pointer;transition:.2s}
+  .done .btn:hover{background:var(--green)}
+
+  @media(max-width:880px){
+    .grid{grid-template-columns:1fr;gap:30px}
+    .intro{position:static}
+    .intro p{max-width:none}
+    .card{padding:32px 24px}
+  }
+  @media(max-width:480px){ .row{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <a href="index.html" class="logo"><span class="sw">swip</span><span class="ed">ED</span><span class="dot"></span></a>
+    <a href="index.html" class="back">← Back to home</a>
+  </div>
+
+  <div class="grid">
+    <!-- intro -->
+    <aside class="intro">
+      <span class="eyebrow"><span class="pulse"></span>Find my teacher</span>
+      <h1>Tell us what you need.<br><em>We'll handle the match.</em></h1>
+      <p>Share a few details and our team will hand-pick teachers who fit you, then reach out personally. It takes about two minutes.</p>
+      <ul class="pts">
+        <li><span class="ck">✓</span> Reviewed by a real person, not an algorithm</li>
+        <li><span class="ck">✓</span> No commitment — we contact you first</li>
+        <li><span class="ck">✓</span> Your details are kept private</li>
+      </ul>
+    </aside>
+
+    <!-- form -->
+    <div class="card">
+      <form id="form" novalidate>
+        <!-- honeypot: bots fill this, humans never see it -->
+        <div class="hp" aria-hidden="true">
+          <label>Leave this empty</label>
+          <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
+        </div>
+
+        <!-- 1. about you -->
+        <fieldset>
+          <legend><span class="step">1</span> About you</legend>
+          <p class="fs-note">The basics, so we know who we're matching.</p>
+          <div class="field">
+            <label for="fullName">Full name</label>
+            <input type="text" id="fullName" placeholder="e.g. James Carter" autocomplete="name">
+            <div class="err" id="err-fullName">Please tell us your name.</div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="age">Age</label>
+              <input type="number" id="age" min="3" max="100" placeholder="e.g. 16">
+              <div class="err" id="err-age">Enter a valid age.</div>
+            </div>
+            <div class="field">
+              <label for="grade">Grade / year</label>
+              <input type="text" id="grade" placeholder="e.g. Year 11 / Grade 10 / DP1">
+              <div class="err" id="err-grade">Please add your grade.</div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="school">School <span class="opt">(optional)</span></label>
+            <input type="text" id="school" placeholder="e.g. Taipei European School">
+          </div>
+          <div class="field">
+            <label for="syllabus">Syllabus</label>
+            <select id="syllabus">
+              <option value="" disabled selected>Choose your curriculum…</option>
+              <option>IB</option>
+              <option>A-Levels</option>
+              <option>IGCSE</option>
+              <option>Other / not sure</option>
+            </select>
+            <div class="err" id="err-syllabus">Please choose a syllabus.</div>
+          </div>
+        </fieldset>
+
+        <!-- 2. contact -->
+        <fieldset>
+          <legend><span class="step">2</span> How we reach you</legend>
+          <p class="fs-note">We'll only use this to set up your match.</p>
+          <div class="row">
+            <div class="field">
+              <label for="email">Email</label>
+              <input type="email" id="email" placeholder="e.g. james@email.com" autocomplete="email">
+              <div class="err" id="err-email">Enter a valid email.</div>
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" placeholder="e.g. +886 912 345 678" autocomplete="tel">
+              <div class="err" id="err-phone">Enter a contact number.</div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- 3. subject -->
+        <fieldset>
+          <legend><span class="step">3</span> What you want to learn</legend>
+          <p class="fs-note">One subject per request works best — submit again for more.</p>
+          <div class="field">
+            <label for="subject">Subject to be tutored in</label>
+            <input type="text" id="subject" placeholder="e.g. A-Level Physics, IB Maths AA, IELTS prep">
+            <div class="err" id="err-subject">Please tell us the subject.</div>
+          </div>
+        </fieldset>
+
+        <!-- 4. optional account -->
+        <fieldset>
+          <legend><span class="step">4</span> Save your details <span class="opt" style="font-family:var(--body);font-size:.9rem;font-weight:500">(optional)</span></legend>
+          <label class="acct-toggle" for="wantAccount">
+            <input type="checkbox" id="wantAccount">
+            <span>
+              <span class="t">Create a free account</span>
+              <span class="d">So you can log back in and track your match. We'll reach out either way.</span>
+            </span>
+          </label>
+          <div class="acct-fields" id="acctFields">
+            <div class="field" style="margin-top:18px">
+              <label for="username">Your username</label>
+              <input type="text" id="username" placeholder="Filled in for you">
+              <div class="hint">Auto-created from your name + today's date: <span class="uname-preview" id="unamePreview">—</span>. You can change it.</div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="At least 8 characters">
+                <div class="err" id="err-password">Use at least 8 characters.</div>
+              </div>
+              <div class="field">
+                <label for="password2">Confirm password</label>
+                <input type="password" id="password2" placeholder="Re-type your password">
+                <div class="err" id="err-password2">Passwords don't match.</div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="submit" id="submitBtn">Send my request →</button>
+        <p class="form-foot">By submitting you agree to be contacted by the swipED team.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- success -->
+<div class="done" id="done">
+  <div class="done-card">
+    <div class="mark">✓</div>
+    <h2>Thank you for your time</h2>
+    <p>We've received your request and we'll come back to you shortly to set up your match.</p>
+    <div class="acct-line" id="acctLine" style="display:none"></div>
+    <a href="index.html" class="btn">Back to home</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const db = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+  // prefill email if it came from the homepage CTA (?email=)
+  const params = new URLSearchParams(location.search);
+  if (params.get('email')) document.getElementById('email').value = params.get('email');
+
+  // --- username auto-generation: firstname + DDMMYY ---
+  function todayCode(){
+    const d = new Date();
+    const p = n => String(n).padStart(2,'0');
+    return p(d.getDate()) + p(d.getMonth()+1) + String(d.getFullYear()).slice(-2);
+  }
+  const fullName = document.getElementById('fullName');
+  const username = document.getElementById('username');
+  const unamePreview = document.getElementById('unamePreview');
+  let usernameEdited = false;
+  username.addEventListener('input', () => usernameEdited = true);
+
+  function suggestUsername(){
+    const first = (fullName.value.trim().split(/\s+/)[0] || '').toLowerCase().replace(/[^a-z0-9]/g,'');
+    const u = first ? first + todayCode() : '';
+    unamePreview.textContent = u || '—';
+    if (!usernameEdited) username.value = u;
+  }
+  fullName.addEventListener('input', suggestUsername);
+
+  // --- account toggle ---
+  const wantAccount = document.getElementById('wantAccount');
+  const acctFields = document.getElementById('acctFields');
+  wantAccount.addEventListener('change', () => {
+    acctFields.classList.toggle('show', wantAccount.checked);
+    if (wantAccount.checked) suggestUsername();
+  });
+
+  // --- validation helpers ---
+  const show = (id, on) => {
+    document.getElementById('err-'+id)?.classList.toggle('show', on);
+    document.getElementById(id)?.classList.toggle('bad', on);
+  };
+  const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+  function validate(){
+    let ok = true;
+    const v = id => document.getElementById(id).value.trim();
+    const req = (id, cond) => { const bad = !cond; show(id, bad); if (bad) ok = false; };
+
+    req('fullName', v('fullName').length > 1);
+    req('age', v('age') && +v('age') >= 3 && +v('age') <= 100);
+    req('grade', v('grade').length > 0);
+    req('syllabus', v('syllabus').length > 0);
+    req('email', isEmail(v('email')));
+    req('phone', v('phone').length >= 5);
+    req('subject', v('subject').length > 1);
+
+    if (wantAccount.checked){
+      req('password', v('password').length >= 8);
+      req('password2', v('password2') === v('password') && v('password2').length >= 8);
+    }
+    return ok;
+  }
+
+  // --- submit ---
+  const form = document.getElementById('form');
+  const btn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // honeypot: if filled, silently pretend success (drop the bot)
+    if (document.getElementById('company').value) { showDone(false, ''); return; }
+    if (!validate()) return;
+
+    btn.disabled = true; btn.textContent = 'Sending…';
+    const val = id => document.getElementById(id).value.trim();
+
+    try {
+      // 1) ALWAYS save the inquiry — this is what "received no matter what" means
+      const { error: insErr } = await db.from('inquiries').insert({
+        full_name: val('fullName'),
+        age: +val('age'),
+        school: val('school') || null,
+        syllabus: val('syllabus'),
+        grade: val('grade'),
+        phone: val('phone'),
+        email: val('email'),
+        subject: val('subject'),
+        has_account: wantAccount.checked,
+        username: wantAccount.checked ? val('username') : null
+      });
+      if (insErr) throw insErr;
+
+      // 2) OPTIONALLY create an account
+      let acctMsg = '';
+      if (wantAccount.checked){
+        const { error: authErr } = await db.auth.signUp({
+          email: val('email'),
+          password: val('password'),
+          options: { data: { username: val('username'), full_name: val('fullName'), role: 'student' } }
+        });
+        if (authErr) acctMsg = 'Your request is saved. (Account note: ' + authErr.message + ')';
+        else acctMsg = 'Your account is ready — username <b>' + val('username') + '</b>. Log in with your email and password.';
+      }
+      showDone(wantAccount.checked, acctMsg);
+    } catch (err) {
+      btn.disabled = false; btn.textContent = 'Send my request →';
+      alert('Something went wrong sending your request. Please try again.\n\n(' + (err.message || err) + ')');
+    }
+  });
+
+  function showDone(hasAcct, msg){
+    const line = document.getElementById('acctLine');
+    if (hasAcct && msg){ line.style.display = 'block'; line.innerHTML = msg; }
+    document.getElementById('done').classList.add('show');
+  }
+</script>
+</body>
+</html>
