@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · swipED</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#13203a; --paper:#f7f4ee; --card:#fff; --line:#e4ddd0; --accent:#e8633a;
+    --accent-ink:#b8431f; --muted:#6b6557; --chip:#eef1f7; }
+  *{box-sizing:border-box} body{margin:0;font-family:'Archivo',sans-serif;background:var(--paper);color:var(--ink)}
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--line);background:var(--card)}
+  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:24px;letter-spacing:-.5px} .brand b{color:var(--accent-ink)}
+  .top-r{display:flex;align-items:center;gap:14px;font-size:13.5px;color:var(--muted)}
+  .btn{padding:9px 16px;border:1px solid var(--line);border-radius:9px;background:var(--card);font-family:inherit;
+    font-weight:600;font-size:13px;cursor:pointer;color:var(--ink);text-decoration:none}
+  .btn:hover{border-color:var(--accent)} .btn.dark{background:var(--ink);color:#fff;border:0}
+  main{max-width:920px;margin:0 auto;padding:34px 24px 60px}
+  h2{font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:0 0 4px;letter-spacing:-.4px}
+  .lede{color:var(--muted);margin:0 0 26px;font-size:14.5px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 30px}
+  .chip{font-size:12px;font-weight:600;padding:6px 12px;border-radius:20px;background:var(--chip);color:#3a4a6b}
+  .chip.on{background:#e7f3ec;color:#1f7a4d} .chip.off{background:#f1ede5;color:#9a917f}
+  .sec-t{font-size:13px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin:30px 0 12px}
+  .grid{display:grid;gap:14px}
+  .match{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .match .name{font-family:'Fraunces',serif;font-size:18px;font-weight:600}
+  .match .meta{font-size:13px;color:var(--muted);margin-top:3px}
+  .status{font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px;background:#e7f3ec;color:#1f7a4d}
+  .status.proposed{background:#fdf3e6;color:#b5780a} .status.ended{background:#f1ede5;color:#9a917f}
+  .empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:30px;text-align:center;color:var(--muted);font-size:14px}
+  .soon{margin-top:8px;font-size:12.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">swip<b>ED</b></div>
+    <div class="top-r">
+      <span id="who"></span>
+      <a id="adminlink" class="btn" href="admin.html" style="display:none">Admin console</a>
+      <button id="signout" class="btn">Sign out</button>
+    </div>
+  </header>
+  <main>
+    <h2 id="greet">Welcome back</h2>
+    <p class="lede" id="lede">Loading your account…</p>
+
+    <div class="sec-t">Your access</div>
+    <div class="row" id="access"></div>
+
+    <div class="sec-t" id="listTitle">Your matches</div>
+    <div class="grid" id="list"></div>
+    <p class="soon">Messaging with your match opens in the next phase — every message is logged and visible to the swipED team for safety.</p>
+  </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const $ = id => document.getElementById(id);
+
+  (async ()=>{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session){ location.href='login.html'; return; }
+    const uid = session.user.id;
+
+    // who am I
+    const { data: me } = await sb.from('profiles').select('role, display_name').eq('id', uid).single();
+    const role = me?.role || 'student';
+    const name = me?.display_name || session.user.email;
+    $('who').textContent = name + ' · ' + role;
+    if(role === 'admin') $('adminlink').style.display='inline-block';
+
+    const isTeacher = role === 'teacher';
+    $('greet').textContent = 'Welcome back, ' + name.split(/[@\s]/)[0];
+    $('lede').textContent = isTeacher
+      ? 'Here are the students the swipED team has matched you with.'
+      : 'Here are the tutors matched to your account.';
+    $('listTitle').textContent = isTeacher ? 'Your students' : 'Your tutors';
+
+    // entitlements -> chips
+    const { data: ents } = await sb.from('entitlements').select('feature').eq('user_id', uid);
+    const held = new Set((ents||[]).map(e=>e.feature));
+    const feats = [['chat','Messaging'],['library','Resource library'],['ai_tutor','AI tutor']];
+    $('access').innerHTML = feats.map(([k,l])=>
+      `<span class="chip ${held.has(k)?'on':'off'}">${l}: ${held.has(k)?'on':'locked'}</span>`).join('');
+
+    // matches (RLS already limits to mine)
+    const { data: matches } = await sb.from('matches')
+      .select('student_user_id, teacher_user_id, subject, status, hourly_rate_student')
+      .order('created_at',{ascending:false});
+
+    if(!matches || matches.length===0){
+      $('list').innerHTML = `<div class="empty">No matches yet. The swipED team will pair you up soon — you'll see them here.</div>`;
+      return;
+    }
+    // resolve the other party's name
+    const otherIds = matches.map(m => isTeacher ? m.student_user_id : m.teacher_user_id);
+    const { data: people } = await sb.from('profiles').select('id, display_name').in('id', otherIds);
+    const nameOf = Object.fromEntries((people||[]).map(p=>[p.id, p.display_name]));
+
+    $('list').innerHTML = matches.map(m=>{
+      const other = isTeacher ? m.student_user_id : m.teacher_user_id;
+      const label = isTeacher ? '' : ` · HK$${m.hourly_rate_student}/hr`;
+      return `<div class="match">
+        <div>
+          <div class="name">${nameOf[other] || 'Unnamed'}</div>
+          <div class="meta">${m.subject || 'Subject TBC'}${label}</div>
+        </div>
+        <span class="status ${m.status}">${m.status}</span>
+      </div>`;
+    }).join('');
+  })();
+
+  $('signout').onclick = async ()=>{ await sb.auth.signOut(); location.href='login.html'; };
+</script>
+</body>
+</html>

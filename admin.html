@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · swipED</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#13203a; --paper:#f7f4ee; --card:#fff; --line:#e4ddd0; --accent:#e8633a;
+    --accent-ink:#b8431f; --muted:#6b6557; }
+  *{box-sizing:border-box} body{margin:0;font-family:'Archivo',sans-serif;background:var(--paper);color:var(--ink)}
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--line);background:var(--card)}
+  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:24px} .brand b{color:var(--accent-ink)}
+  .brand span{font-size:13px;color:var(--muted);font-family:'Archivo';margin-left:8px}
+  .btn{padding:9px 16px;border:1px solid var(--line);border-radius:9px;background:var(--card);font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;color:var(--ink);text-decoration:none}
+  .btn.dark{background:var(--ink);color:#fff;border:0} .btn:hover{border-color:var(--accent)}
+  main{max-width:1040px;margin:0 auto;padding:30px 24px 70px}
+  h2{font-family:'Fraunces',serif;font-weight:600;font-size:21px;margin:38px 0 14px;letter-spacing:-.3px}
+  h2:first-child{margin-top:6px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;overflow:auto}
+  table{border-collapse:collapse;width:100%;font-size:13px} th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end}
+  .form label{font-size:12px;font-weight:600;display:block;margin-bottom:5px}
+  select,input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:14px;background:#fdfcfa}
+  select:focus,input:focus{outline:none;border-color:var(--accent)}
+  .mini{padding:10px 16px} .msg{font-size:13px;margin-top:12px;min-height:18px}
+  .ok{color:#1f7a4d} .err{color:#c0392b} .deny{max-width:480px;margin:80px auto;text-align:center}
+  .pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:#eef1f7;color:#3a4a6b}
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">swip<b>ED</b><span>admin console</span></div>
+    <div><a class="btn" href="dashboard.html">Dashboard</a> <button id="signout" class="btn">Sign out</button></div>
+  </header>
+
+  <div id="gate" class="deny" style="display:none">
+    <h2>Not authorised</h2>
+    <p style="color:var(--muted)">This page is for swipED admins only. If that's you, set your profile role to <code>admin</code> in Supabase first.</p>
+    <a class="btn dark" href="dashboard.html">Back to dashboard</a>
+  </div>
+
+  <main id="app" style="display:none">
+    <h2>Create a match</h2>
+    <div class="panel">
+      <div class="form">
+        <div><label>Student / parent account</label><select id="m_student"></select></div>
+        <div><label>Tutor account</label><select id="m_teacher"></select></div>
+        <div><label>Subject</label><input id="m_subject" placeholder="e.g. IGCSE Physics 0625"></div>
+        <div><button id="m_create" class="btn dark mini">Match</button></div>
+      </div>
+      <div id="m_msg" class="msg"></div>
+    </div>
+
+    <h2>Grant feature access <span class="pill">selected accounts</span></h2>
+    <div class="panel">
+      <div class="form">
+        <div><label>Account</label><select id="e_user"></select></div>
+        <div><label>Feature</label><select id="e_feat">
+          <option value="chat">Messaging (chat)</option>
+          <option value="library">Resource library</option>
+          <option value="ai_tutor">AI tutor</option>
+        </select></div>
+        <div></div>
+        <div><button id="e_grant" class="btn dark mini">Grant</button></div>
+      </div>
+      <div id="e_msg" class="msg"></div>
+    </div>
+
+    <h2>Existing matches</h2>
+    <div class="panel"><table id="matchTbl"><tbody></tbody></table></div>
+
+    <h2>Tutor applications</h2>
+    <div class="panel"><div id="apps">Loading…</div></div>
+
+    <h2>Student inquiries</h2>
+    <div class="panel"><div id="inq">Loading…</div></div>
+  </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const $ = id => document.getElementById(id);
+  let profiles = [];
+
+  function renderTable(rows, mountId){
+    const el = $(mountId);
+    if(!rows || rows.length===0){ el.textContent = 'Nothing here yet.'; return; }
+    const cols = Object.keys(rows[0]);
+    el.innerHTML = `<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${r[c]??''}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  }
+
+  (async ()=>{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session){ location.href='login.html'; return; }
+
+    const { data: me } = await sb.from('profiles').select('role').eq('id', session.user.id).single();
+    if(me?.role !== 'admin'){ $('gate').style.display='block'; return; }
+    $('app').style.display='block';
+
+    // load all profiles for the pickers
+    const { data: ps } = await sb.from('profiles').select('id, role, display_name').order('display_name');
+    profiles = ps || [];
+    const students = profiles.filter(p=>['student','parent'].includes(p.role));
+    const teachers = profiles.filter(p=>p.role==='teacher');
+    const opt = p => `<option value="${p.id}">${p.display_name||'(no name)'} · ${p.role}</option>`;
+    $('m_student').innerHTML = students.map(opt).join('');
+    $('m_teacher').innerHTML = teachers.map(opt).join('');
+    $('e_user').innerHTML = profiles.map(opt).join('');
+
+    await loadMatches();
+    const { data: apps } = await sb.from('teacher_applications').select('*').order('id',{ascending:false}).limit(100);
+    renderTable(apps, 'apps');
+    const { data: inq } = await sb.from('inquiries').select('*').order('id',{ascending:false}).limit(100);
+    renderTable(inq, 'inq');
+  })();
+
+  async function loadMatches(){
+    const { data: m } = await sb.from('matches').select('*').order('created_at',{ascending:false});
+    const nameOf = Object.fromEntries(profiles.map(p=>[p.id,p.display_name]));
+    const body = (m||[]).map(x=>`<tr>
+      <td>${nameOf[x.student_user_id]||x.student_user_id.slice(0,8)}</td>
+      <td>${nameOf[x.teacher_user_id]||x.teacher_user_id.slice(0,8)}</td>
+      <td>${x.subject||''}</td><td>HK$${x.hourly_rate_student}</td>
+      <td><span class="pill">${x.status}</span></td></tr>`).join('');
+    $('matchTbl').innerHTML = `<thead><tr><th>Student</th><th>Tutor</th><th>Subject</th><th>Rate</th><th>Status</th></tr></thead><tbody>${body||'<tr><td>No matches yet.</td></tr>'}</tbody>`;
+  }
+
+  $('m_create').onclick = async ()=>{
+    const student_user_id=$('m_student').value, teacher_user_id=$('m_teacher').value, subject=$('m_subject').value.trim();
+    if(!student_user_id||!teacher_user_id){ $('m_msg').className='msg err'; $('m_msg').textContent='Pick both a student and a tutor.'; return; }
+    const { error } = await sb.from('matches').insert({ student_user_id, teacher_user_id, subject, created_by:(await sb.auth.getUser()).data.user.id });
+    $('m_msg').className='msg '+(error?'err':'ok');
+    $('m_msg').textContent = error ? error.message : 'Matched ✓';
+    if(!error){ $('m_subject').value=''; loadMatches(); }
+  };
+
+  $('e_grant').onclick = async ()=>{
+    const user_id=$('e_user').value, feature=$('e_feat').value;
+    const { error } = await sb.from('entitlements').upsert({ user_id, feature }, { onConflict:'user_id,feature' });
+    $('e_msg').className='msg '+(error?'err':'ok');
+    $('e_msg').textContent = error ? error.message : 'Access granted ✓';
+  };
+
+  $('signout').onclick = async ()=>{ await sb.auth.signOut(); location.href='login.html'; };
+</script>
+</body>
+</html>
