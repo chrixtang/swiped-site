@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SwipEd — World-class teachers, matched to you</title>
+<meta name="description" content="SwipEd is a high-quality cross-border education centre. We match students with world-class teachers worldwide — top talent, fair local pricing." />
+<link rel="icon" type="image/png" href="assets/logo-180.png">
+<link rel="apple-touch-icon" href="assets/logo-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,400,0,0;0,9..144,500,0,0;0,9..144,600,0,0;0,9..144,700,0,0;1,9..144,400,0,0;1,9..144,600,0,0&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4efe4;
+    --bg-2:#efe7d6;
+    --ink:#16261d;
+    --ink-soft:#3a4a40;
+    --green:#1c5f43;
+    --green-deep:#0f3326;
+    --coral:#ff5b3a;
+    --amber:#f2b441;
+    --cream:#fbf8f1;
+    --line:rgba(22,38,29,.12);
+    --shadow:0 30px 60px -25px rgba(15,51,38,.45);
+    --r:22px;
+    --display:'Fraunces',Georgia,serif;
+    --body:'Hanken Grotesk',-apple-system,system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--body);
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.55;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    font-variation-settings:"WONK" 0,"SOFT" 0;
+  }
+
+  /* grain overlay */
+  body::before{
+    content:"";
+    position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--coral);color:#fff}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+
+  /* ---------- NAV ---------- */
+  header{position:fixed;top:0;left:0;right:0;z-index:1000;transition:.4s}
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:18px auto;max-width:1200px;padding:12px 18px 12px 22px;
+    background:rgba(251,248,241,.7);backdrop-filter:blur(14px);
+    border:1px solid var(--line);border-radius:100px;
+    width:calc(100% - 56px);transition:.4s;
+  }
+  header.scrolled .nav{box-shadow:0 12px 30px -18px rgba(15,51,38,.4);background:rgba(251,248,241,.92)}
+  .logo{font-family:var(--display);font-weight:600;font-size:1.5rem;letter-spacing:-.01em;display:inline-flex;align-items:baseline}
+  .logo .sw{color:var(--ink)}
+  .logo .ed{color:var(--coral);font-style:italic;font-weight:600}
+  .nav-links{display:flex;gap:30px;align-items:center}
+  .nav-links a{font-weight:500;font-size:.95rem;color:var(--ink-soft);transition:.2s;position:relative}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-4px;height:2px;width:0;background:var(--coral);transition:.25s}
+  .nav-links a:hover::after{width:100%}
+  .btn{
+    font-family:var(--body);font-weight:600;font-size:.95rem;cursor:pointer;
+    border:none;border-radius:100px;padding:12px 24px;transition:.25s;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary{background:var(--ink);color:var(--cream)}
+  .btn-primary:hover{background:var(--green);transform:translateY(-2px)}
+  .btn-coral{background:var(--coral);color:#fff}
+  .btn-coral:hover{background:#ff4019;transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(255,91,58,.7)}
+  .btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--ink);background:var(--ink);color:var(--cream)}
+  .nav-toggle{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px}
+  .nav-toggle span{width:24px;height:2px;background:var(--ink);transition:.3s}
+
+  /* ---------- HERO ---------- */
+  .hero{position:relative;padding:160px 0 90px;overflow:hidden}
+  .hero-bg{position:absolute;inset:0;z-index:-1}
+  .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5}
+  .blob.a{width:520px;height:520px;background:var(--amber);top:-120px;right:-100px;opacity:.35}
+  .blob.b{width:440px;height:440px;background:var(--green);bottom:-160px;left:-120px;opacity:.22}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:var(--green);background:rgba(28,95,67,.1);padding:8px 16px;border-radius:100px;margin-bottom:26px}
+  .eyebrow .pulse{width:8px;height:8px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 0 rgba(255,91,58,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,91,58,.5)}70%{box-shadow:0 0 0 12px rgba(255,91,58,0)}100%{box-shadow:0 0 0 0 rgba(255,91,58,0)}}
+  h1{font-family:var(--display);font-weight:500;font-size:clamp(2.6rem,5.5vw,4.4rem);line-height:1.02;letter-spacing:-.02em;color:var(--ink)}
+  h1 em{font-style:italic;color:var(--green)}
+  h1 .hl{position:relative;white-space:nowrap}
+  h1 .hl::after{content:"";position:absolute;left:-2px;right:-2px;bottom:6px;height:14px;background:var(--amber);opacity:.5;z-index:-1;border-radius:3px}
+  .lede{font-size:1.18rem;color:var(--ink-soft);margin:26px 0 34px;max-width:480px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .hero-meta{display:flex;gap:28px;margin-top:42px;flex-wrap:wrap}
+  .hero-meta .num{font-family:var(--display);font-weight:600;font-size:1.9rem;color:var(--ink);line-height:1}
+  .hero-meta .lbl{font-size:.82rem;color:var(--ink-soft);margin-top:4px}
+
+  /* swipe card stack */
+  .stage{position:relative;height:480px;display:flex;align-items:center;justify-content:center;perspective:1400px}
+  .card-stack{position:relative;width:320px;height:430px}
+  .swcard{
+    position:absolute;inset:0;border-radius:var(--r);overflow:hidden;
+    background:var(--cream);border:1px solid var(--line);box-shadow:var(--shadow);
+    display:flex;flex-direction:column;cursor:grab;user-select:none;
+    transition:transform .55s cubic-bezier(.16,1,.3,1),opacity .4s;
+  }
+  .swcard.dragging{transition:none;cursor:grabbing}
+  .swcard .photo{height:60%;position:relative;display:flex;align-items:flex-end;padding:18px;color:#fff}
+  .swcard .photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(15,51,38,.85))}
+  .swcard .photo .who{position:relative;z-index:2}
+  .swcard .flag{position:absolute;top:16px;left:16px;z-index:2;background:rgba(255,255,255,.9);color:var(--ink);font-weight:700;font-size:.72rem;padding:5px 11px;border-radius:100px;display:flex;gap:6px;align-items:center}
+  .swcard .rate{position:absolute;top:16px;right:16px;z-index:2;background:var(--coral);color:#fff;font-weight:700;font-size:.78rem;padding:5px 12px;border-radius:100px}
+  .swcard h3{font-family:var(--display);font-weight:600;font-size:1.5rem;line-height:1}
+  .swcard .subj{font-size:.9rem;opacity:.9;margin-top:5px;font-weight:500}
+  .swcard .body{padding:16px 18px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+  .swcard .tags{display:flex;gap:7px;flex-wrap:wrap}
+  .swcard .tag{font-size:.72rem;font-weight:600;background:var(--bg-2);color:var(--ink-soft);padding:5px 11px;border-radius:100px}
+  .swcard .stars{color:var(--amber);font-weight:700;font-size:.9rem;display:flex;gap:6px;align-items:center}
+  .swcard .stars span{color:var(--ink-soft);font-weight:500}
+  .stamp{position:absolute;top:34px;z-index:5;font-family:var(--display);font-weight:700;font-size:2rem;border:4px solid;border-radius:12px;padding:4px 16px;opacity:0;transition:.15s;transform:rotate(-14deg)}
+  .stamp.like{left:24px;color:var(--green);border-color:var(--green)}
+  .stamp.nope{right:24px;color:var(--coral);border-color:var(--coral);transform:rotate(14deg)}
+  .sw-controls{position:absolute;bottom:-26px;left:50%;transform:translateX(-50%);display:flex;gap:18px;z-index:20}
+  .sw-btn{width:62px;height:62px;border-radius:50%;border:none;cursor:pointer;font-size:1.4rem;display:flex;align-items:center;justify-content:center;background:var(--cream);box-shadow:var(--shadow);transition:.2s}
+  .sw-btn:hover{transform:translateY(-3px) scale(1.05)}
+  .sw-btn.no{color:var(--coral)}
+  .sw-btn.yes{color:#fff;background:var(--green)}
+  .match-toast{position:absolute;inset:0;background:rgba(28,95,67,.96);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px;opacity:0;pointer-events:none;transition:.4s;z-index:30}
+  .match-toast.show{opacity:1}
+  .match-toast h3{font-family:var(--display);font-size:2.2rem;font-weight:600;margin-bottom:8px}
+  .match-toast p{opacity:.85;font-size:.95rem;max-width:240px}
+  .match-toast .heart{font-size:3rem;margin-bottom:14px;animation:beat 1s infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+
+  /* ---------- SECTIONS ---------- */
+  section{position:relative}
+  .section-head{max-width:640px;margin-bottom:54px}
+  .tag-eyebrow{font-weight:600;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;color:var(--coral);margin-bottom:14px;display:block}
+  h2{font-family:var(--display);font-weight:500;font-size:clamp(2rem,4vw,3rem);line-height:1.05;letter-spacing:-.02em}
+  h2 em{font-style:italic;color:var(--green)}
+  .section-head p{color:var(--ink-soft);font-size:1.1rem;margin-top:18px}
+
+  /* marquee */
+  .marquee{background:var(--ink);color:var(--cream);padding:20px 0;overflow:hidden;white-space:nowrap}
+  .marquee-track{display:inline-flex;gap:44px;animation:scroll 26s linear infinite;font-family:var(--display);font-size:1.5rem;font-style:italic}
+  .marquee-track span{display:inline-flex;align-items:center;gap:44px}
+  .marquee .dot{color:var(--coral);font-style:normal}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+
+  /* how it works */
+  .how{padding:110px 0}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .step{background:var(--cream);border:1px solid var(--line);border-radius:var(--r);padding:34px 30px;position:relative;transition:.35s;overflow:hidden}
+  .step:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+  .step .n{font-family:var(--display);font-size:3.4rem;font-weight:600;color:var(--bg-2);line-height:1;position:absolute;top:18px;right:24px;transition:.35s}
+  .step:hover .n{color:var(--amber)}
+  .step .ic{width:54px;height:54px;border-radius:14px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:22px}
+  .step:nth-child(2) .ic{background:var(--coral)}
+  .step:nth-child(3) .ic{background:var(--amber);color:var(--ink)}
+  .step h3{font-family:var(--display);font-weight:600;font-size:1.4rem;margin-bottom:10px}
+  .step p{color:var(--ink-soft);font-size:.98rem}
+
+  /* split: students / teachers */
+  .split{padding:110px 0;background:var(--bg-2)}
+  .split-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:stretch}
+  .panel{border-radius:28px;padding:84px 42px 46px;position:relative;overflow:hidden;min-height:420px;display:flex;flex-direction:column}
+  .panel.students{background:var(--green);color:var(--cream)}
+  .panel.teachers{background:var(--ink);color:var(--cream)}
+  .panel .badge{position:absolute;top:34px;left:42px;font-weight:600;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
+  .panel h3{font-family:var(--display);font-weight:500;font-size:2.1rem;line-height:1.08;margin-bottom:16px;min-height:2.16em}
+  .panel ul{list-style:none;margin:4px 0 28px}
+  .panel li{padding:10px 0;border-top:1px solid rgba(251,248,241,.16);font-size:1rem;display:flex;gap:12px;align-items:flex-start}
+  .panel li .ck{color:var(--amber);font-weight:700;flex-shrink:0}
+  .panel.teachers li .ck{color:var(--coral)}
+  .panel .btn{margin-top:auto;align-self:flex-start}
+  .panel .deco{position:absolute;border-radius:50%;filter:blur(50px)}
+  .panel.students .deco{width:260px;height:260px;background:var(--amber);opacity:.22;top:-80px;right:-60px}
+  .panel.teachers .deco{width:260px;height:260px;background:var(--coral);opacity:.25;bottom:-90px;left:-60px}
+
+  /* value / why */
+  .why{padding:110px 0}
+  .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .val{background:var(--cream);padding:34px 28px;transition:.3s}
+  .val:hover{background:var(--green);color:var(--cream)}
+  .val .ic{font-size:1.8rem;margin-bottom:18px}
+  .val h3{font-family:var(--display);font-weight:600;font-size:1.25rem;margin-bottom:8px}
+  .val p{color:var(--ink-soft);font-size:.94rem}
+  .val:hover p{color:rgba(251,248,241,.82)}
+
+  /* stats band */
+  .stats{padding:90px 0;background:var(--ink);color:var(--cream)}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;text-align:center}
+  .stat .num{font-family:var(--display);font-weight:600;font-size:clamp(2.4rem,5vw,3.6rem);line-height:1;color:var(--amber)}
+  .stat .lbl{font-size:.95rem;opacity:.8;margin-top:10px}
+
+  /* testimonials */
+  .tests{padding:110px 0}
+  .test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .test{background:var(--cream);border:1px solid var(--line);border-radius:var(--r);padding:32px 30px;transition:.3s}
+  .test:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+  .test .q{font-family:var(--display);font-size:1.12rem;line-height:1.5;color:var(--ink);margin-bottom:24px}
+  .test .who{display:flex;align-items:center;gap:13px}
+  .test .av{width:46px;height:46px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--display)}
+  .test:nth-child(2) .av{background:var(--coral)}
+  .test:nth-child(3) .av{background:var(--amber);color:var(--ink)}
+  .test .nm{font-weight:700;font-size:.95rem}
+  .test .rl{font-size:.82rem;color:var(--ink-soft)}
+  .test .stars{color:var(--amber);margin-bottom:16px;font-size:.95rem}
+
+  /* CTA */
+  .cta{padding:40px 0 110px}
+  .cta-box{background:var(--green);border-radius:34px;padding:70px 60px;position:relative;overflow:hidden;text-align:center;color:var(--cream)}
+  .cta-box .deco{position:absolute;border-radius:50%;filter:blur(60px)}
+  .cta-box .deco.a{width:300px;height:300px;background:var(--amber);opacity:.3;top:-100px;left:-60px}
+  .cta-box .deco.b{width:300px;height:300px;background:var(--coral);opacity:.3;bottom:-120px;right:-50px}
+  .cta-box h2{color:var(--cream);position:relative;z-index:2}
+  .cta-box h2 em{color:var(--amber)}
+  .cta-box p{position:relative;z-index:2;font-size:1.15rem;opacity:.88;max-width:520px;margin:18px auto 34px}
+  .cta-form{position:relative;z-index:2;display:flex;gap:12px;max-width:480px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+  .cta-form input{flex:1;min-width:220px;border:none;border-radius:100px;padding:16px 24px;font-family:var(--body);font-size:1rem;background:var(--cream);color:var(--ink)}
+  .cta-form input:focus{outline:2px solid var(--amber)}
+  .cta-note{position:relative;z-index:2;font-size:.85rem;opacity:.7;margin-top:18px}
+
+  /* footer */
+  footer{background:var(--ink);color:var(--cream);padding:70px 0 36px}
+  .foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px;margin-bottom:48px}
+  footer .logo{margin-bottom:16px}
+  footer .logo .sw{color:var(--cream)}
+  .foot-blurb{opacity:.7;font-size:.95rem;max-width:280px}
+  .foot-col h4{font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;opacity:.6;margin-bottom:18px}
+  .foot-col a{display:block;padding:7px 0;opacity:.85;font-size:.95rem;transition:.2s}
+  .foot-col a:hover{opacity:1;color:var(--amber);padding-left:5px}
+  .foot-bottom{border-top:1px solid rgba(251,248,241,.15);padding-top:26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;font-size:.88rem;opacity:.65}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(30px);transition:.8s cubic-bezier(.16,1,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* responsive */
+  @media(max-width:920px){
+    .hero-grid,.split-grid{grid-template-columns:1fr}
+    .stage{margin-top:30px}
+    .steps,.why-grid,.test-grid{grid-template-columns:1fr}
+    .stats-grid{grid-template-columns:1fr 1fr;gap:40px 20px}
+    .foot-grid{grid-template-columns:1fr 1fr}
+    .nav-links{display:none}
+    .nav-links.open{display:flex;position:absolute;top:80px;left:28px;right:28px;flex-direction:column;background:var(--cream);padding:24px;border-radius:22px;border:1px solid var(--line);box-shadow:var(--shadow);gap:18px}
+    .nav-toggle{display:flex}
+    .hero{padding-top:130px}
+  }
+  @media(max-width:540px){
+    .panel{padding:38px 28px}
+    .cta-box{padding:48px 26px}
+    .foot-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header id="header">
+  <nav class="nav wrap">
+    <a href="#" class="logo"><span class="sw">Swip</span><span class="ed">Ed</span></a>
+    <div class="nav-links" id="navLinks">
+      <a href="#how">How it works</a>
+      <a href="#students">Students</a>
+      <a href="#teachers">Teachers</a>
+      <a href="#why">Why SwipEd</a>
+      <a href="login.html">Sign in</a>
+      <a href="find-teacher.html" class="btn btn-coral">Get matched</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"><div class="blob a"></div><div class="blob b"></div></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="pulse"></span>Learning made personal</span>
+      <h1>Swipe right on <em>world-class</em> <span class="hl">teachers.</span></h1>
+      <p class="lede">SwipEd is a high-quality education centre that matches students with exceptional teachers — many with 20+ years in the classroom — for structured 1-to-1 lessons online, at around half what local tutoring costs.</p>
+      <div class="hero-cta">
+        <a href="find-teacher.html" class="btn btn-coral">Find my teacher →</a>
+        <a href="become-teacher.html" class="btn btn-ghost">I'm a teacher</a>
+      </div>
+      <div class="hero-meta">
+        <div><div class="num">8+</div><div class="lbl">Countries connected</div></div>
+        <div><div class="num">32+</div><div class="lbl">Vetted teachers</div></div>
+        <div><div class="num">IGCSE·IB·A-Level</div><div class="lbl">Exam specialists</div></div>
+      </div>
+    </div>
+
+    <!-- SWIPE DEMO -->
+    <div class="stage">
+      <div class="card-stack" id="cardStack">
+        <!-- cards injected by JS -->
+        <div class="match-toast" id="matchToast">
+          <div class="heart">🤝</div>
+          <h3>It's a match!</h3>
+          <p>We'll connect you with your teacher and set up your first session.</p>
+        </div>
+        <div class="sw-controls">
+          <button class="sw-btn no" id="btnNo" aria-label="Skip">✕</button>
+          <button class="sw-btn yes" id="btnYes" aria-label="Match">♥</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span>Mathematics <i class="dot">•</i> English <i class="dot">•</i> IELTS &amp; TOEFL <i class="dot">•</i> Coding <i class="dot">•</i> Music <i class="dot">•</i> Physics <i class="dot">•</i> Mandarin <i class="dot">•</i> Spanish <i class="dot">•</i> Business <i class="dot">•</i> Art <i class="dot">•</i> </span>
+    <span>Mathematics <i class="dot">•</i> English <i class="dot">•</i> IELTS &amp; TOEFL <i class="dot">•</i> Coding <i class="dot">•</i> Music <i class="dot">•</i> Physics <i class="dot">•</i> Mandarin <i class="dot">•</i> Spanish <i class="dot">•</i> Business <i class="dot">•</i> Art <i class="dot">•</i> </span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag-eyebrow">How it works</span>
+      <h2>Three swipes from <em>your perfect teacher.</em></h2>
+      <p>No endless searching. Tell us what you need, and we match you with the right teacher anywhere in the world.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="n">01</div>
+        <div class="ic">🎯</div>
+        <h3>Tell us your goals</h3>
+        <p>Share the subject, level and outcome you're aiming for. Whether it's an exam, a skill or fluency — we listen first.</p>
+      </div>
+      <div class="step reveal">
+        <div class="n">02</div>
+        <div class="ic">↔️</div>
+        <h3>Get matched</h3>
+        <p>Our team curates teachers from a global, fully-vetted pool and presents the ones who fit you best. Swipe to choose.</p>
+      </div>
+      <div class="step reveal">
+        <div class="n">03</div>
+        <div class="ic">🚀</div>
+        <h3>Start learning</h3>
+        <p>Book your first session in minutes. Learn online or in-person, on a schedule that works across time zones.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPLIT -->
+<section class="split">
+  <div class="wrap split-grid">
+    <div class="panel students reveal" id="students">
+      <div class="deco"></div>
+      <span class="badge">For students</span>
+      <h3>Access teachers you couldn't reach before.</h3>
+      <ul>
+        <li><span class="ck">✓</span> Experienced IGCSE, IB & A-Level teachers — with 20+ years in the classroom</li>
+        <li><span class="ck">✓</span> Around half the price of local Hong Kong tutoring</li>
+        <li><span class="ck">✓</span> A structured system, mapped to your syllabus</li>
+        <li><span class="ck">✓</span> Online 1-to-1, with practice papers and progress tracking</li>
+      </ul>
+      <a href="find-teacher.html" class="btn btn-coral">Find my teacher →</a>
+    </div>
+    <div class="panel teachers reveal" id="teachers">
+      <div class="deco"></div>
+      <span class="badge">For teachers</span>
+      <h3>Teach globally. Get paid what you're worth.</h3>
+      <ul>
+        <li><span class="ck">✓</span> Reach motivated students beyond home</li>
+        <li><span class="ck">✓</span> Earn international rates, paid reliably</li>
+        <li><span class="ck">✓</span> We handle the matching, scheduling and admin</li>
+        <li><span class="ck">✓</span> Build a reputation that travels with you</li>
+      </ul>
+      <a href="become-teacher.html" class="btn btn-coral">Start teaching →</a>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="why" id="why">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag-eyebrow">Why SwipEd</span>
+      <h2>High quality, <em>no borders.</em></h2>
+      <p>We exist to make great teaching accessible — wherever you are, whoever you are.</p>
+    </div>
+    <div class="why-grid reveal">
+      <div class="val">
+        <div class="ic">🌍</div>
+        <h3>Truly global</h3>
+        <p>A worldwide network of teachers and students, connected as if they were next door.</p>
+      </div>
+      <div class="val">
+        <div class="ic">🛡️</div>
+        <h3>Carefully vetted</h3>
+        <p>Every teacher is reviewed for qualifications, experience and teaching quality.</p>
+      </div>
+      <div class="val">
+        <div class="ic">💎</div>
+        <h3>Fairly priced</h3>
+        <p>World-class teaching at rates that make sense for your local context.</p>
+      </div>
+      <div class="val">
+        <div class="ic">🤝</div>
+        <h3>Human matching</h3>
+        <p>Real people curate your matches — not a faceless algorithm guessing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="wrap stats-grid">
+    <div class="stat reveal"><div class="num" data-target="1300" data-suffix="+">0</div><div class="lbl">Teachers in our network</div></div>
+    <div class="stat reveal"><div class="num" data-target="10" data-suffix="+">0</div><div class="lbl">Countries connected</div></div>
+    <div class="stat reveal"><div class="num" data-target="267" data-suffix="+">0</div><div class="lbl">Lessons matched</div></div>
+    <div class="stat reveal"><div class="num" data-target="98" data-suffix="%">0</div><div class="lbl">Would recommend</div></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="tests">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="tag-eyebrow">Loved across Hong Kong</span>
+      <h2>Stories from <em>SwipEd students</em> &amp; parents.</h2>
+    </div>
+    <div class="test-grid">
+      <div class="test reveal">
+        <div class="stars">★★★★★</div>
+        <p class="q">"We found a maths teacher who completely changed how my son sees the subject. His grades at DBS jumped within a term — we'd never have reached a teacher this good on our own."</p>
+        <div class="who"><div class="av">WC</div><div><div class="nm">Mrs. Chan</div><div class="rl">Parent · DBS student</div></div></div>
+      </div>
+      <div class="test reveal">
+        <div class="stars">★★★★★</div>
+        <p class="q">"My SwipEd teacher mapped everything to the South Island School syllabus and gave me past papers every week. I went into my IGCSEs actually feeling ready."</p>
+        <div class="who"><div class="av">JL</div><div><div class="nm">Jasmine L.</div><div class="rl">Student · South Island School</div></div></div>
+      </div>
+      <div class="test reveal">
+        <div class="stars">★★★★★</div>
+        <p class="q">"Matched with an English teacher in two days for my IB. Brilliant quality, and far better value than the tutoring centres near SPCC."</p>
+        <div class="who"><div class="av">RT</div><div><div class="nm">Ryan T.</div><div class="rl">Student · SPCC</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="join">
+  <div class="wrap">
+    <div class="cta-box reveal">
+      <div class="deco a"></div><div class="deco b"></div>
+      <h2>Your next great <em>teacher</em> is one swipe away.</h2>
+      <p>Join SwipEd today. Tell us what you're looking for, and we'll handle the match.</p>
+      <div class="cta-form">
+        <input type="email" id="emailInput" placeholder="Enter your email" aria-label="Email" />
+        <button class="btn btn-coral" id="joinBtn">Get matched →</button>
+      </div>
+      <p class="cta-note" id="ctaNote">Students &amp; teachers welcome. No commitment to get started.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="#" class="logo"><span class="sw">Swip</span><span class="ed">Ed</span></a>
+        <p class="foot-blurb">A high-quality education centre matching students with exceptional teachers across borders.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Learn</h4>
+        <a href="#how">How it works</a>
+        <a href="#students">For students</a>
+        <a href="#why">Why SwipEd</a>
+      </div>
+      <div class="foot-col">
+        <h4>Teach</h4>
+        <a href="#teachers">Become a teacher</a>
+        <a href="#join">Apply now</a>
+        <a href="#why">Our standards</a>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <a href="#join">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="privacy.html#consent">Parental consent</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span id="year"></span> SwipEd. All rights reserved.</span>
+      <span>Made for learners, everywhere.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // nav scroll + mobile toggle
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 20));
+  const navToggle = document.getElementById('navToggle'), navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+  // reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: .15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // count up stats
+  const countIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target, target = +el.dataset.target, suffix = el.dataset.suffix || '';
+      let cur = 0; const step = target / 60;
+      const tick = () => {
+        cur += step;
+        if (cur < target) { el.textContent = Math.floor(cur).toLocaleString() + suffix; requestAnimationFrame(tick); }
+        else el.textContent = target.toLocaleString() + suffix;
+      };
+      tick(); countIO.unobserve(el);
+    });
+  }, { threshold: .5 });
+  document.querySelectorAll('.num[data-target]').forEach(el => countIO.observe(el));
+
+  /* ---------- SWIPE CARD DEMO ---------- */
+  const teachers = [
+    { name:'David Okonkwo', subj:'A-Level Physics', flag:'🇬🇧 UK', rate:'Local rate', grad:'#0f3326', tags:['Oxford grad','Exam expert','Flexible'], stars:'5.0' },
+    { name:'Mei Lin', subj:'Mandarin & HSK', flag:'🇨🇳 China', rate:'Local rate', grad:'#1c5f43', tags:['Native','Beginner friendly','Kids'], stars:'4.8' },
+    { name:'Carlos Vega', subj:'Full-Stack Coding', flag:'🇪🇸 Spain', rate:'Local rate', grad:'#0f3326', tags:['Senior dev','Projects','Career help'], stars:'4.9' },
+    { name:'Amara Diallo', subj:'IELTS & Academic English', flag:'🇫🇷 France', rate:'Local rate', grad:'#1c5f43', tags:['Band 8+','TOEFL too','Fast results'], stars:'5.0' },
+  ];
+  const stack = document.getElementById('cardStack');
+  const toast = document.getElementById('matchToast');
+  let idx = 0;
+
+  function buildCard(t, i){
+    const card = document.createElement('div');
+    card.className = 'swcard';
+    card.style.zIndex = 10 - i;
+    const scale = 1 - i*0.04, ty = i*14;
+    card.style.transform = `translateY(${ty}px) scale(${scale})`;
+    card.style.opacity = i > 2 ? 0 : 1;
+    card.innerHTML = `
+      <div class="stamp like">MATCH</div>
+      <div class="stamp nope">SKIP</div>
+      <div class="photo" style="background:linear-gradient(150deg,${t.grad},${t.grad}cc)">
+        <span class="flag">${t.flag}</span>
+        <span class="rate">${t.rate}</span>
+        <div class="who"><h3>${t.name}</h3><div class="subj">${t.subj}</div></div>
+      </div>
+      <div class="body">
+        <div class="stars">★ ${t.stars} <span>· verified teacher</span></div>
+        <div class="tags">${t.tags.map(x=>`<span class="tag">${x}</span>`).join('')}</div>
+      </div>`;
+    return card;
+  }
+
+  function render(){
+    stack.querySelectorAll('.swcard').forEach(c => c.remove());
+    for (let i = 0; i < 3; i++){
+      const t = teachers[(idx + i) % teachers.length];
+      const card = buildCard(t, i);
+      stack.insertBefore(card, stack.firstChild);
+    }
+  }
+
+  // the visible top card is the LAST .swcard in the stack (cards are prepended).
+  // NOTE: a class selector with :last-of-type matches by element type, not class,
+  // so the toast/controls divs broke it before — grab the last .swcard directly.
+  function topCard(){
+    const cards = stack.querySelectorAll('.swcard');
+    return cards.length ? cards[cards.length - 1] : null;
+  }
+
+  let animating = false;
+  function decide(like){
+    if (animating) return;
+    const card = topCard();
+    if (!card) return;
+    animating = true;
+    card.style.transition = 'transform .5s cubic-bezier(.16,1,.3,1), opacity .5s';
+    card.style.transform = `translate(${like?500:-500}px, ${like?-60:60}px) rotate(${like?22:-22}deg)`;
+    card.style.opacity = 0;
+    if (like){ toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1700); }
+    setTimeout(() => { idx = (idx + 1) % teachers.length; render(); animating = false; }, 360);
+  }
+
+  // pointer state for dragging the current top card (listeners attached once, below)
+  let dragCard = null, startX = 0, startY = 0, dx = 0, dy = 0, dragging = false;
+  function down(x, y){
+    const card = topCard();
+    if (!card || animating) return;
+    dragCard = card; dragging = true; startX = x; startY = y;
+    card.classList.add('dragging');
+  }
+  function move(x, y){
+    if (!dragging || !dragCard) return;
+    dx = x - startX; dy = y - startY;
+    dragCard.style.transform = `translate(${dx}px,${dy}px) rotate(${dx*0.06}deg)`;
+    const like = dragCard.querySelector('.stamp.like'), nope = dragCard.querySelector('.stamp.nope');
+    if (like) like.style.opacity = dx > 0 ? Math.min(dx/80,1) : 0;
+    if (nope) nope.style.opacity = dx < 0 ? Math.min(-dx/80,1) : 0;
+  }
+  function up(){
+    if (!dragging || !dragCard) return;
+    dragging = false;
+    dragCard.classList.remove('dragging');
+    if (Math.abs(dx) > 110){ decide(dx > 0); }
+    else {
+      dragCard.style.transform = '';
+      const like = dragCard.querySelector('.stamp.like'), nope = dragCard.querySelector('.stamp.nope');
+      if (like) like.style.opacity = 0;
+      if (nope) nope.style.opacity = 0;
+    }
+    dragCard = null; dx = dy = 0;
+  }
+
+  // attach pointer listeners to the stack ONCE (delegated to the current top card)
+  function attachDrag(){
+    stack.addEventListener('mousedown', e => { if (e.target.closest('.swcard')) down(e.clientX, e.clientY); });
+    stack.addEventListener('touchstart', e => { if (e.target.closest('.swcard')) down(e.touches[0].clientX, e.touches[0].clientY); }, {passive:true});
+    window.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+    window.addEventListener('mouseup', up);
+    window.addEventListener('touchmove', e => { if (dragging) move(e.touches[0].clientX, e.touches[0].clientY); }, {passive:true});
+    window.addEventListener('touchend', up);
+  }
+
+  document.getElementById('btnYes').addEventListener('click', () => decide(true));
+  document.getElementById('btnNo').addEventListener('click', () => decide(false));
+  attachDrag();
+  render();
+
+  /* ---------- CTA → routes to the matching form ---------- */
+  document.getElementById('joinBtn').addEventListener('click', () => {
+    const input = document.getElementById('emailInput'), note = document.getElementById('ctaNote');
+    const val = input.value.trim();
+    if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+      note.textContent = '↑ Please enter a valid email address.';
+      note.style.color = 'var(--amber)';
+      return;
+    }
+    // carry the email into the student form so they don't retype it
+    window.location.href = 'find-teacher.html?email=' + encodeURIComponent(val);
+  });
+</script>
+</body>
+</html>

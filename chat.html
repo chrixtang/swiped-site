@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages · SwipEd</title>
+<link rel="icon" type="image/png" href="assets/logo-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,500,0,0;0,9..144,600,0,0;1,9..144,600,0,0&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#13203a; --paper:#f7f4ee; --card:#fff; --line:#e4ddd0; --accent:#e8633a;
+    --accent-ink:#b8431f; --muted:#6b6557; --mine:#1c5f43; --bubble:#eef1f7; }
+  *{box-sizing:border-box} body{margin:0;font-family:'Archivo',sans-serif;background:var(--paper);color:var(--ink);
+    font-variation-settings:"WONK" 0,"SOFT" 0}
+  header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--line);background:var(--card)}
+  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:22px;letter-spacing:-.5px} .brand b{color:var(--accent-ink);font-style:italic;font-weight:600}
+  .top-r{display:flex;gap:12px;align-items:center}
+  .btn{padding:8px 14px;border:1px solid var(--line);border-radius:9px;background:var(--card);font-family:inherit;
+    font-weight:600;font-size:13px;cursor:pointer;color:var(--ink);text-decoration:none}
+  .btn:hover{border-color:var(--accent)}
+
+  main{max-width:760px;margin:0 auto;padding:20px 16px 24px}
+  .convo{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 150px);min-height:420px}
+  .convo-head{padding:16px 20px;border-bottom:1px solid var(--line)}
+  .convo-head .name{font-family:'Fraunces',serif;font-size:18px;font-weight:600}
+  .convo-head .meta{font-size:13px;color:var(--muted);margin-top:2px}
+  .safety{font-size:12px;color:#8a6d1a;background:#fdf3e6;border-bottom:1px solid var(--line);padding:8px 20px}
+
+  .msgs{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:10px;background:#fbfaf7}
+  .row{display:flex}
+  .row.me{justify-content:flex-end}
+  .bubble{max-width:74%;padding:9px 13px;border-radius:14px;font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}
+  .row.them .bubble{background:var(--bubble);color:var(--ink);border-bottom-left-radius:4px}
+  .row.me .bubble{background:var(--mine);color:#fff;border-bottom-right-radius:4px}
+  .time{font-size:10.5px;color:var(--muted);margin-top:3px;text-align:right}
+  .row.them .time{text-align:left}
+  .day{align-self:center;font-size:11px;color:var(--muted);background:#efeae0;padding:3px 10px;border-radius:20px;margin:6px 0}
+
+  .composer{border-top:1px solid var(--line);padding:12px 14px;display:flex;gap:10px;align-items:flex-end;background:var(--card)}
+  textarea{flex:1;resize:none;max-height:120px;min-height:42px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;
+    font-family:inherit;font-size:14.5px;background:#fdfcfa;line-height:1.4}
+  textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,99,58,.15)}
+  .send{padding:0 18px;height:42px;border:0;border-radius:11px;background:var(--ink);color:#fff;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer}
+  .send:hover{background:#1d2f54} .send:disabled{opacity:.5;cursor:default}
+
+  .state{max-width:520px;margin:70px auto;text-align:center;padding:0 24px}
+  .state h2{font-family:'Fraunces',serif;font-weight:600;font-size:24px;margin:0 0 10px}
+  .state p{color:var(--muted);font-size:14.5px;margin:0 0 18px}
+  .state .btn.dark{background:var(--ink);color:#fff;border:0}
+  .hidden{display:none}
+  .empty{color:var(--muted);font-size:14px;text-align:center;margin:auto;padding:30px}
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">Swip<b>Ed</b></div>
+    <div class="top-r">
+      <a class="btn" href="dashboard.html">← Dashboard</a>
+      <button id="signout" class="btn">Sign out</button>
+    </div>
+  </header>
+
+  <!-- gate / error state -->
+  <div id="state" class="state hidden">
+    <h2 id="stateTitle"></h2>
+    <p id="stateMsg"></p>
+    <a class="btn dark" href="dashboard.html">Back to dashboard</a>
+  </div>
+
+  <!-- conversation -->
+  <main id="app" class="hidden">
+    <div class="convo">
+      <div class="convo-head">
+        <div class="name" id="otherName">…</div>
+        <div class="meta" id="convoMeta"></div>
+      </div>
+      <div class="safety">🔒 Messages here are logged and visible to the SwipEd team for safety.</div>
+      <div class="msgs" id="msgs"></div>
+      <div class="composer">
+        <textarea id="input" placeholder="Write a message…" rows="1"></textarea>
+        <button id="send" class="send">Send</button>
+      </div>
+    </div>
+  </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const $ = id => document.getElementById(id);
+  const matchId = new URLSearchParams(location.search).get('match');
+
+  let uid = null, seen = new Set(), poll = null;
+
+  function gate(title, msg){
+    $('app').classList.add('hidden');
+    $('stateTitle').textContent = title;
+    $('stateMsg').textContent = msg;
+    $('state').classList.remove('hidden');
+  }
+  const esc = s => (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const fmtTime = d => new Date(d).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const fmtDay  = d => new Date(d).toLocaleDateString([], {weekday:'short', day:'numeric', month:'short'});
+
+  $('signout').onclick = async ()=>{ await sb.auth.signOut(); location.href='login.html'; };
+
+  (async ()=>{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(!session){ location.href='login.html'; return; }
+    uid = session.user.id;
+
+    if(!matchId){ gate('No conversation selected', 'Open a match from your dashboard to start messaging.'); return; }
+
+    // who am I
+    const { data: me } = await sb.from('profiles').select('role, display_name').eq('id', uid).single();
+    const isAdmin = me?.role === 'admin';
+
+    // the match (RLS limits to mine; admins can read all)
+    const { data: match, error: mErr } = await sb.from('matches').select('*').eq('id', matchId).single();
+    if(mErr || !match){ gate('Conversation not found', "This match doesn't exist, or it isn't linked to your account."); return; }
+
+    // chat must be enabled for this account (admins bypass)
+    if(!isAdmin){
+      const { data: ent } = await sb.from('entitlements').select('feature').eq('user_id', uid).eq('feature','chat');
+      if(!ent || ent.length === 0){
+        gate('Messaging not enabled yet', 'The SwipEd team hasn’t turned on messaging for your account. You’ll see an Open chat button on your matches once it’s enabled.');
+        return;
+      }
+    }
+
+    // the other party
+    const otherId = match.student_user_id === uid ? match.teacher_user_id : match.student_user_id;
+    const { data: op } = await sb.from('profiles').select('display_name, role').eq('id', otherId).single();
+    $('otherName').textContent = op?.display_name || 'Your match';
+    $('convoMeta').textContent = [match.subject || 'Subject TBC', match.status].filter(Boolean).join(' · ');
+
+    $('app').classList.remove('hidden');
+
+    // initial load
+    const ok = await loadMessages();
+    if(!ok) return;
+
+    // live updates: realtime if available, plus a light poll fallback
+    try {
+      sb.channel('messages:' + matchId)
+        .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages', filter:'match_id=eq.' + matchId },
+          payload => appendMsg(payload.new))
+        .subscribe();
+    } catch(e){ /* realtime optional */ }
+    poll = setInterval(loadMessages, 4000);
+
+    // composer
+    const input = $('input'), sendBtn = $('send');
+    input.addEventListener('input', ()=>{ input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,120)+'px'; });
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); doSend(); } });
+    sendBtn.onclick = doSend;
+
+    async function doSend(){
+      const body = input.value.trim();
+      if(!body) return;
+      sendBtn.disabled = true;
+      const { data, error } = await sb.from('messages')
+        .insert({ match_id: matchId, sender_user_id: uid, body })
+        .select().single();
+      sendBtn.disabled = false;
+      if(error){ alert('Could not send: ' + error.message); return; }
+      input.value = ''; input.style.height='auto';
+      appendMsg(data);
+    }
+  })();
+
+  async function loadMessages(){
+    const { data, error } = await sb.from('messages')
+      .select('id, sender_user_id, body, created_at')
+      .eq('match_id', matchId)
+      .order('created_at', { ascending:true });
+    if(error){
+      // table not created yet → friendly message instead of a crash
+      if(poll) clearInterval(poll);
+      gate('Messaging is being set up', 'The messages table hasn’t been created in Supabase yet. Run SUPABASE_SETUP.sql, then refresh this page.');
+      return false;
+    }
+    (data||[]).forEach(appendMsg);
+    return true;
+  }
+
+  let lastDay = '';
+  function appendMsg(m){
+    if(!m || seen.has(m.id)) return;
+    seen.add(m.id);
+    const wrap = $('msgs');
+    const empty = wrap.querySelector('.empty'); if(empty) empty.remove();
+
+    const day = fmtDay(m.created_at);
+    if(day !== lastDay){
+      const d = document.createElement('div'); d.className='day'; d.textContent = day; wrap.appendChild(d); lastDay = day;
+    }
+    const mine = m.sender_user_id === uid;
+    const row = document.createElement('div');
+    row.className = 'row ' + (mine ? 'me' : 'them');
+    row.innerHTML = `<div><div class="bubble">${esc(m.body)}</div><div class="time">${fmtTime(m.created_at)}</div></div>`;
+    wrap.appendChild(row);
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+</script>
+</body>
+</html>

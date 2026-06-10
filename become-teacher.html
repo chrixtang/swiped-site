@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Become a teacher — SwipEd</title>
+<meta name="description" content="Join SwipEd as a teacher. Reach motivated students worldwide." />
+<link rel="icon" type="image/png" href="assets/logo-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,400,0,0;0,9..144,500,0,0;0,9..144,600,0,0;0,9..144,700,0,0;1,9..144,400,0,0;1,9..144,600,0,0&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4efe4; --bg-2:#efe7d6; --ink:#16261d; --ink-soft:#3a4a40;
+    --green:#1c5f43; --green-deep:#0f3326; --coral:#ff5b3a; --amber:#f2b441;
+    --cream:#fbf8f1; --line:rgba(22,38,29,.12);
+    --shadow:0 30px 60px -25px rgba(15,51,38,.45); --r:22px;
+    --display:'Fraunces',Georgia,serif; --body:'Hanken Grotesk',-apple-system,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--body);background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh;font-variation-settings:"WONK" 0,"SOFT" 0}
+  body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.045;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--coral);color:#fff}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:26px 0}
+  .logo{font-family:var(--display);font-weight:600;font-size:1.5rem;letter-spacing:-.01em;display:inline-flex;align-items:baseline}
+  .logo .sw{color:var(--ink)} .logo .ed{color:var(--coral);font-style:italic;font-weight:600}
+  .back{font-weight:500;font-size:.95rem;color:var(--ink-soft);display:inline-flex;align-items:center;gap:7px;transition:.2s}
+  .back:hover{color:var(--ink)}
+
+  .grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:46px;align-items:start;padding:18px 0 90px}
+
+  .intro{position:sticky;top:30px}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cream);background:var(--ink);padding:8px 16px;border-radius:100px;margin-bottom:22px}
+  .eyebrow .pulse{width:8px;height:8px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 0 rgba(255,91,58,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,91,58,.5)}70%{box-shadow:0 0 0 12px rgba(255,91,58,0)}100%{box-shadow:0 0 0 0 rgba(255,91,58,0)}}
+  .intro h1{font-family:var(--display);font-weight:500;font-size:clamp(2.1rem,4vw,3rem);line-height:1.04;letter-spacing:-.02em}
+  .intro h1 em{font-style:italic;color:var(--green)}
+  .intro p{color:var(--ink-soft);font-size:1.08rem;margin-top:18px;max-width:380px}
+  .intro .pts{list-style:none;margin-top:26px;display:flex;flex-direction:column;gap:13px}
+  .intro .pts li{display:flex;gap:11px;align-items:flex-start;font-size:.97rem;color:var(--ink-soft)}
+  .intro .pts .ck{color:var(--coral);font-weight:700;flex-shrink:0}
+
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:40px 38px}
+  .req-banner{display:flex;gap:11px;align-items:flex-start;background:rgba(28,95,67,.08);border:1px solid rgba(28,95,67,.2);border-radius:14px;padding:14px 16px;margin-bottom:26px;font-size:.92rem;color:var(--ink-soft)}
+  .req-banner b{color:var(--ink)}
+  fieldset{border:none;margin-bottom:30px}
+  legend{font-family:var(--display);font-weight:600;font-size:1.18rem;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+  legend .step{width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--body);font-size:.85rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+  .fs-note{font-size:.9rem;color:var(--ink-soft);margin:0 0 18px 36px}
+
+  .field{margin-bottom:16px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  label{display:block;font-weight:600;font-size:.9rem;margin-bottom:6px}
+  label .opt{font-weight:500;color:var(--ink-soft)}
+  .hint{font-size:.8rem;color:var(--ink-soft);margin-top:5px}
+  input,select,textarea{width:100%;font-family:var(--body);font-size:1rem;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:13px 15px;transition:.2s}
+  textarea{resize:vertical;min-height:96px;line-height:1.5}
+  input::placeholder,textarea::placeholder{color:#a9b3ac}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(28,95,67,.12)}
+  input.bad,select.bad,textarea.bad{border-color:var(--coral);box-shadow:0 0 0 3px rgba(255,91,58,.12)}
+  .err{font-size:.8rem;color:var(--coral);margin-top:5px;display:none}
+  .err.show{display:block}
+  /* password show/hide */
+  .pw-wrap{position:relative}
+  .pw-wrap input{padding-right:62px}
+  .pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;cursor:pointer;font-family:var(--body);font-size:.82rem;font-weight:600;color:var(--green);padding:6px 8px}
+  .pw-toggle:hover{text-decoration:underline}
+  .uname-preview{font-family:var(--display);color:var(--green);font-weight:600}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+  .submit{width:100%;font-family:var(--body);font-weight:600;font-size:1.05rem;cursor:pointer;border:none;border-radius:100px;padding:16px 24px;background:var(--coral);color:#fff;transition:.25s;margin-top:6px}
+  .submit:hover{background:#ff4019;transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(255,91,58,.7)}
+  .submit:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+  .form-foot{font-size:.82rem;color:var(--ink-soft);text-align:center;margin-top:14px}
+
+  .done{position:fixed;inset:0;z-index:10000;background:rgba(15,51,38,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+  .done.show{display:flex}
+  .done-card{background:var(--cream);border-radius:28px;box-shadow:var(--shadow);max-width:440px;width:100%;padding:48px 40px;text-align:center;animation:pop .5s cubic-bezier(.16,1,.3,1)}
+  @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+  .done .mark{width:74px;height:74px;border-radius:50%;background:var(--green);color:#fff;font-size:2.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+  .done h2{font-family:var(--display);font-weight:600;font-size:1.9rem;margin-bottom:12px}
+  .done p{color:var(--ink-soft);font-size:1.05rem;margin-bottom:8px}
+  .done .acct-line{font-size:.92rem;background:var(--bg-2);border-radius:12px;padding:12px 16px;margin:18px 0 6px}
+  .done .btn{display:inline-block;margin-top:22px;font-weight:600;border:none;border-radius:100px;padding:13px 28px;background:var(--ink);color:var(--cream);cursor:pointer;transition:.2s}
+  .done .btn:hover{background:var(--green)}
+
+  @media(max-width:880px){
+    .grid{grid-template-columns:1fr;gap:30px}
+    .intro{position:static}
+    .intro p{max-width:none}
+    .card{padding:32px 24px}
+  }
+  @media(max-width:480px){ .row{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <a href="index.html" class="logo"><span class="sw">Swip</span><span class="ed">Ed</span></a>
+    <a href="index.html" class="back">← Back to home</a>
+  </div>
+
+  <div class="grid">
+    <aside class="intro">
+      <span class="eyebrow"><span class="pulse"></span>Become a teacher</span>
+      <h1>Teach globally.<br><em>Get paid what you're worth.</em></h1>
+      <p>Join our vetted network and reach motivated students far beyond your home market. We handle matching, scheduling and admin.</p>
+      <ul class="pts">
+        <li><span class="ck">✓</span> Earn international rates, paid reliably</li>
+        <li><span class="ck">✓</span> We bring the students to you</li>
+        <li><span class="ck">✓</span> Build a reputation that travels with you</li>
+      </ul>
+    </aside>
+
+    <div class="card">
+      <div class="req-banner">
+        <span>🔑</span>
+        <span>Teaching with SwipEd requires a <b>free account</b>, so you can manage your profile and matches. We'll set it up as you apply.</span>
+      </div>
+
+      <form id="form" novalidate>
+        <div class="hp" aria-hidden="true">
+          <label>Leave this empty</label>
+          <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
+        </div>
+
+        <!-- 1. about you -->
+        <fieldset>
+          <legend><span class="step">1</span> About you</legend>
+          <p class="fs-note">Tell us who you are and where you've taught or studied.</p>
+          <div class="field">
+            <label for="fullName">Full name</label>
+            <input type="text" id="fullName" placeholder="e.g. Sofia Marchetti" autocomplete="name">
+            <div class="err" id="err-fullName">Please tell us your name.</div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="age">Age</label>
+              <input type="number" id="age" min="18" max="100" placeholder="e.g. 34">
+              <div class="err" id="err-age">Teachers must be 18 or older.</div>
+            </div>
+            <div class="field">
+              <label for="school">School / institution <span class="opt">(current or most recent)</span></label>
+              <input type="text" id="school" placeholder="e.g. Milan Conservatory">
+              <div class="err" id="err-school">Please add your institution.</div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="education">Educational background</label>
+            <textarea id="education" placeholder="e.g. MA in Music Performance, Milan Conservatory (2014). Grade 8 ABRSM examiner. 12 years teaching piano, online and in-person."></textarea>
+            <div class="err" id="err-education">A few lines about your qualifications, please.</div>
+          </div>
+        </fieldset>
+
+        <!-- 2. contact -->
+        <fieldset>
+          <legend><span class="step">2</span> How we reach you</legend>
+          <p class="fs-note">Used for your application and, once approved, to coordinate matches.</p>
+          <div class="row">
+            <div class="field">
+              <label for="email">Email</label>
+              <input type="email" id="email" placeholder="e.g. sofia@email.com" autocomplete="email">
+              <div class="err" id="err-email">Enter a valid email.</div>
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" placeholder="e.g. +39 333 123 4567" autocomplete="tel">
+              <div class="err" id="err-phone">Enter a contact number.</div>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- 3. subject -->
+        <fieldset>
+          <legend><span class="step">3</span> What you teach</legend>
+          <p class="fs-note">Your main subject. You can add more once you're onboarded.</p>
+          <div class="field">
+            <label for="subject">Subject you tutor</label>
+            <input type="text" id="subject" placeholder="e.g. Conservatory Piano, A-Level Physics, IELTS">
+            <div class="err" id="err-subject">Please tell us your subject.</div>
+          </div>
+        </fieldset>
+
+        <!-- 4. account (required) -->
+        <fieldset>
+          <legend><span class="step">4</span> Your account</legend>
+          <p class="fs-note">This lets you log back in to manage your profile.</p>
+          <div class="field">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Filled in for you">
+            <div class="hint">Auto-created from your name + today's date: <span class="uname-preview" id="unamePreview">—</span>. You can change it.</div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="password">Password</label>
+              <div class="pw-wrap">
+                <input type="password" id="password" placeholder="At least 8 characters">
+                <button type="button" class="pw-toggle" data-target="password" aria-label="Show password" aria-pressed="false">Show</button>
+              </div>
+              <div class="err" id="err-password">Use at least 8 characters.</div>
+            </div>
+            <div class="field">
+              <label for="password2">Confirm password</label>
+              <div class="pw-wrap">
+                <input type="password" id="password2" placeholder="Re-type your password">
+                <button type="button" class="pw-toggle" data-target="password2" aria-label="Show password" aria-pressed="false">Show</button>
+              </div>
+              <div class="err" id="err-password2">Passwords don't match.</div>
+            </div>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="submit" id="submitBtn">Submit application →</button>
+        <p class="form-foot">By applying you agree to SwipEd's teacher vetting process.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="done" id="done">
+  <div class="done-card">
+    <div class="mark">✓</div>
+    <h2>Thank you for your time</h2>
+    <p>We've received your application and we'll come back to you shortly after our team reviews it.</p>
+    <div class="acct-line" id="acctLine" style="display:none"></div>
+    <a href="index.html" class="btn">Back to home</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const db = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+  function todayCode(){
+    const d = new Date(); const p = n => String(n).padStart(2,'0');
+    return p(d.getDate()) + p(d.getMonth()+1) + String(d.getFullYear()).slice(-2);
+  }
+  const fullName = document.getElementById('fullName');
+  const username = document.getElementById('username');
+  const unamePreview = document.getElementById('unamePreview');
+  let usernameEdited = false;
+  username.addEventListener('input', () => usernameEdited = true);
+  function suggestUsername(){
+    const first = (fullName.value.trim().split(/\s+/)[0] || '').toLowerCase().replace(/[^a-z0-9]/g,'');
+    const u = first ? first + todayCode() : '';
+    unamePreview.textContent = u || '—';
+    if (!usernameEdited) username.value = u;
+  }
+  fullName.addEventListener('input', suggestUsername);
+
+  // --- show / hide password toggles ---
+  document.querySelectorAll('.pw-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const f = document.getElementById(btn.dataset.target);
+      const showPw = f.type === 'password';
+      f.type = showPw ? 'text' : 'password';
+      btn.textContent = showPw ? 'Hide' : 'Show';
+      btn.setAttribute('aria-pressed', String(showPw));
+      btn.setAttribute('aria-label', showPw ? 'Hide password' : 'Show password');
+      f.focus();
+    });
+  });
+
+  const show = (id, on) => {
+    document.getElementById('err-'+id)?.classList.toggle('show', on);
+    document.getElementById(id)?.classList.toggle('bad', on);
+  };
+  const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+  function validate(){
+    let ok = true;
+    const v = id => document.getElementById(id).value.trim();
+    const req = (id, cond) => { const bad = !cond; show(id, bad); if (bad) ok = false; };
+    req('fullName', v('fullName').length > 1);
+    req('age', v('age') && +v('age') >= 18 && +v('age') <= 100);
+    req('school', v('school').length > 0);
+    req('education', v('education').length > 5);
+    req('email', isEmail(v('email')));
+    req('phone', v('phone').length >= 5);
+    req('subject', v('subject').length > 1);
+    req('password', v('password').length >= 8);
+    req('password2', v('password2') === v('password') && v('password2').length >= 8);
+    return ok;
+  }
+
+  const form = document.getElementById('form');
+  const btn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (document.getElementById('company').value) { document.getElementById('done').classList.add('show'); return; }
+    if (!validate()) return;
+
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    const v = id => document.getElementById(id).value.trim();
+
+    try {
+      // 1) ALWAYS save the application
+      const { error: insErr } = await db.from('teacher_applications').insert({
+        full_name: v('fullName'),
+        age: +v('age'),
+        school: v('school'),
+        education: v('education'),
+        phone: v('phone'),
+        email: v('email'),
+        subject: v('subject'),
+        username: v('username')
+      });
+      if (insErr) throw insErr;
+
+      // 2) Create the (required) account
+      let acctMsg = 'Your account is ready — username <b>' + v('username') + '</b>. Log in with your email and password.';
+      const { error: authErr } = await db.auth.signUp({
+        email: v('email'),
+        password: v('password'),
+        options: { data: { username: v('username'), full_name: v('fullName'), role: 'teacher' } }
+      });
+      if (authErr) acctMsg = 'Your application is saved. (Account note: ' + authErr.message + ')';
+
+      const line = document.getElementById('acctLine');
+      line.style.display = 'block'; line.innerHTML = acctMsg;
+      document.getElementById('done').classList.add('show');
+    } catch (err) {
+      btn.disabled = false; btn.textContent = 'Submit application →';
+      alert('Something went wrong submitting your application. Please try again.\n\n(' + (err.message || err) + ')');
+    }
+  });
+</script>
+</body>
+</html>
